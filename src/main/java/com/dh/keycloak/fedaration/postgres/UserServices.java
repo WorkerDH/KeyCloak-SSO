@@ -53,7 +53,7 @@ public class UserServices {
             user.setUsername(rs.getString(3));
             user.setPassword(rs.getString(5));
             user.setRoleName(rs.getString(6));
-            System.out.println("id: " + rs.getString(1));
+           // System.out.println("id: " + rs.getString(1));
             break;
 //            System.out.print("email " + rs.getString(2));
 //            System.out.print("name: " + rs.getString(3));
