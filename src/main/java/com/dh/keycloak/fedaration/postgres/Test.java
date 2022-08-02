@@ -57,7 +57,11 @@ public class Test {
      int a=3;
      int b=3333;
      int c=23;
+<<<<<<< HEAD
      int d=233;
+=======
+     int d=989;
+>>>>>>> ffb383cb7ffc50decbf2f0e7a791f3debc26042a
         return "1";
     }
 private void we(){
