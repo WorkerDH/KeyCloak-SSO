@@ -53,7 +53,9 @@ public class Test {
         list1.add("b");
     }
  private String t1(){
-     int a=3;
+        int a=3;
+        int b=3333;
+        int c=23;
         return "1";
     }
 private void we(){
