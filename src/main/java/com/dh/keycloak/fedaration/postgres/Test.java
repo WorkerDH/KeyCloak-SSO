@@ -52,10 +52,12 @@ public class Test {
         list1.add("b");
         list1.add("b");
     }
-    private void we(){
-        System.out.println("sss");
+ private string t1(){
+        return "1";
     }
-    private static void setToB(Integer b) {
+private void we(){
+        System.out.println("sss");
+    }    private static void setToB(Integer b) {
         b = 100;
     }
 
