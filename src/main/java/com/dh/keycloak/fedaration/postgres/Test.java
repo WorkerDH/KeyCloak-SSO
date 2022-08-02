@@ -53,6 +53,7 @@ public class Test {
         list1.add("b");
     }
  private String t1(){
+     int a=3;
         return "1";
     }
 private void we(){
