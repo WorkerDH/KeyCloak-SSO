@@ -57,6 +57,7 @@ public class Test {
      int a=3;
      int b=3333;
      int c=23;
+     int d=989;
         return "1";
     }
 private void we(){
