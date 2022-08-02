@@ -52,7 +52,7 @@ public class Test {
         list1.add("b");
         list1.add("b");
     }
- private string t1(){
+ private String t1(){
         return "1";
     }
 private void we(){
