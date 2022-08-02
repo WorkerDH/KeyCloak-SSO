@@ -48,7 +48,7 @@ public class Test {
         //list1.addAll(list);
         list.add("2");
         list=list1;
-
+        int a=2;
         list1.add("b");
         list1.add("b");
     }
