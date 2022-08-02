@@ -18,7 +18,7 @@ import java.util.Properties;
 public class UserServices {
     private static final Logger logger = Logger.getLogger(UserServices.class);
     public User getUserByName(String name) throws IOException, SQLException, ClassNotFoundException {
-       logger.info("UserServices->getUserByName:"+name+"]");
+       //logger.info("UserServices->getUserByName:"+name+"]");
         InputStream conf = PostgreSQLJDBC.class.getClassLoader().getResourceAsStream("config/jdbc.properties");
         Properties pros = new Properties();
         pros.load(conf);
@@ -53,6 +53,7 @@ public class UserServices {
             user.setUsername(rs.getString(3));
             user.setPassword(rs.getString(5));
             user.setRoleName(rs.getString(6));
+            user.setPhone(rs.getString("phone"));
            // System.out.println("id: " + rs.getString(1));
             break;
 //            System.out.print("email " + rs.getString(2));

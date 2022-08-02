@@ -7,23 +7,16 @@ import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputValidator;
 import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
-import org.keycloak.models.utils.UserModelDelegate;
-import org.keycloak.storage.ReadOnlyException;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
-import org.keycloak.storage.adapter.AbstractUserAdapter;
-import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
-import javax.jws.soap.SOAPBinding;
-import javax.management.relation.Role;
-import java.io.IOException;
-import java.sql.SQLException;
+
 import java.util.*;
 
 /**
- * @author EDY
+ * @author DH
  * @create 2022/7/29 10:10
  */
 //实现了UserLookupProvider接口，因为我们希望能够使用此提供程序存储的用户登录。
@@ -74,35 +67,12 @@ public class ExternalStorageProvider implements
                     //adapter.setEnabled(true);
                     List<String> list = new ArrayList<>();
                     list.add(user.getPassword());
-
-                    //adapter.setAttribute("password2",list);
-                    //adapter.setSingleAttribute("pass",user.getPassword());
-                    printAttr(adapter.getAttributes());
                     String id = "f:" + model.getId() + ":" + adapter.getUsername();
                     logger.info("have a id=>" + id);
-
-//                    Iterator roles = realmModel.getRoles().iterator();
-//                    Iterator userRoles = adapter.getRoleMappings().iterator();
-//                    boolean flag = true;
-//                    while (userRoles.hasNext()) {
-//                        RoleModel roleModel = (RoleModel) userRoles.next();
-//                        if (roleModel.getName().equals(user.getRoleName())) {
-//                            flag = false;//已经注册了角色
-//                        }
-//                    }
-//                    while (roles.hasNext()) {
-//                        RoleModel roleModel = (RoleModel) roles.next();
-//                        logger.info("get my role info:" + roleModel.getName());
-//                        if (roleModel.getName().equals(user.getRoleName()) && flag) {
-//                            logger.info("set my role info:" + roleModel.getName());
-//                            adapter.grantRole(roleModel);
-//                        }
-//                    }
-//                    //adapter.grantRole();
                     loadUsers.put(username, adapter);
                 }
             } catch (Exception e) {
-                logger.info("exception1:" + e);
+                logger.info("exception:" + e);
                 e.printStackTrace();
             }
 
@@ -119,19 +89,20 @@ public class ExternalStorageProvider implements
     //创建userModel
     protected UserModel createAdapter(RealmModel realm, String username , User user) {
         logger.info("createAdapter:" + username);
-
         UserModel local = session.userLocalStorage().getUserByUsername(username, realm);
         if (local == null) {
-            logger.info("createAdapter->local==null:>>>");
+            logger.info("local ==null>>>>>>>");
             local = session.userLocalStorage().addUser(realm, username);
             local.setFederationLink(model.getId());
-            logger.info("createAdapter:->model.getid=" + model.getId());
             local.setEnabled(true);
-
+            local.setSingleAttribute("password",user.getPassword());
+            local.setSingleAttribute("phone",user.getPhone());
+            addRole(realm,user.getRoleName());//新增角色
             Iterator roles = realm.getRoles().iterator();
+
             Iterator userRoles = local.getRoleMappings().iterator();
             boolean flag = true;
-            while (userRoles.hasNext()) {
+            while (userRoles.hasNext()) {//判断改用户是否已经注册了用户
                 RoleModel roleModel = (RoleModel) userRoles.next();
                 if (roleModel.getName().equals(user.getRoleName())) {
                     flag = false;//已经注册了角色
@@ -142,50 +113,63 @@ public class ExternalStorageProvider implements
                 logger.info("get my role info:" + roleModel.getName());
                 if (roleModel.getName().equals(user.getRoleName()) && flag) {
                     logger.info("set my role info:" + roleModel.getName());
-                    local.grantRole(roleModel);
+                    local.grantRole(roleModel);//授予角色
+                    local.grantRole(realm.getRole("defaultRole"));
                 }
             }
-            //ad
+            //this.session.realms().addRealmRole(realm,"customRole"+username);
+            //this.session.roleLocalStorage().addRealmRole(realm,"customRole"+username);
+        }else{
+            logger.info("local !=null>>>>>>>");
         }
          return local;
-//        return new AbstractUserAdapterFederatedStorage(session, realm, model) {
-//            @Override
-//            public String getUsername() {
-//                return username;
-//            }
-//
-//            @Override
-//            public void setUsername(String s) {
-//                logger.info("what should I do???");
-//            }
-//        };
-    }
 
+    }
+    /**
+     * @description: 新增role
+     * @author DH
+     * @date 2022/8/1
+     */
+     private void addRole(RealmModel realm,String roleName){
+        Iterator<RoleModel> iterator=realm.getRoles().iterator();
+        if (roleName==null||realm==null){
+            return;
+        }
+        while (iterator.hasNext()){
+            RoleModel roleModel=iterator.next();
+            if (roleModel.getName().equals(roleName)){
+                return;//已有该角色，跳过增加角色的步骤
+            }
+        }
+        this.session.realms().addRealmRole(realm,roleName);
+     }
     //方法返回特定凭证类型是否支持验证。我们检查凭证类型是否为password
     @Override
     public boolean supportsCredentialType(String credentialType) {
         logger.info("supportsCredentialType:" + credentialType);
-        //return true;
+
         return credentialType.equals(PasswordCredentialModel.TYPE);
     }
 
     //确定是否为用户配置了特定的凭证类型。此方法检查是否为用户设置了密码
     @Override
     public boolean isConfiguredFor(RealmModel realmModel, UserModel userModel, String credentialType) {
-        try {
-            logger.info("isConfiguredFor:" + credentialType);
-            User user = userServices.getUserByName(userModel.getUsername());
-            return credentialType.equals(PasswordCredentialModel.TYPE) && user != null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+         logger.info("isConfiguredFor:");
+        return supportsCredentialType(credentialType);
     }
 
-    //该isValid()方法负责验证密码
+    //该isValid()方法负责验证密码,高
     @Override
     public boolean isValid(RealmModel realmModel, UserModel userModel, CredentialInput input) {
         logger.info("isValid=>input:" + input.getChallengeResponse() + ",=>userModel:" + userModel.getUsername());
+        UserModel local=this.session.userLocalStorage().getUserByUsername(userModel.getUsername(),realmModel);
+        if (local!=null){//先看看本地缓存
+            //String password=local.getAttribute("password");
+            if (local.getAttribute("password")!=null){
+                String password=local.getAttribute("password").get(0);
+                return password.equals(input.getChallengeResponse());
+            }
+        }
         if (!supportsCredentialType(input.getType())) {
             return false;
         }

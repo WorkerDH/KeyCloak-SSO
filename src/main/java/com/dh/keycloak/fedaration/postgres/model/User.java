@@ -12,7 +12,7 @@ public class User {
     String username;
     String password;
     String roleName;
-
+    String phone;
     public String getId() {
         return id;
     }
@@ -43,5 +43,13 @@ public class User {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
