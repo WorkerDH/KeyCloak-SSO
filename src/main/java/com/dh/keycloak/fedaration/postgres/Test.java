@@ -52,7 +52,9 @@ public class Test {
         list1.add("b");
         list1.add("b");
     }
-
+    private void we(){
+        System.out.println("sss");
+    }
     private static void setToB(Integer b) {
         b = 100;
     }
