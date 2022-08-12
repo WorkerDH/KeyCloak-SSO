@@ -1,2 +1,2 @@
 # KeyCloak-SSO
-keycloak的spi接口实现，完成了对接postgre外部数据库，使用postgre数据库中的用户信息来进行登录验证，并给用户赋予角色
+keycloak的spi接口实现，完成了对接postgre外部数据库，使用postgre数据库中的用户信息来进行登录验证，并给用户赋予角色,请参考其中的externalProvider，PostgreProvider只是测试，并未使用
