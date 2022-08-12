@@ -1,8 +1,10 @@
 package com.dh.keycloak.fedaration.postgres;
 
+import com.dh.keycloak.fedaration.postgres.dao.UserDao;
 import com.dh.keycloak.fedaration.postgres.model.User;
 import org.apache.log4j.Logger;
 import org.keycloak.component.ComponentModel;
+import org.keycloak.component.ComponentValidationException;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputValidator;
 import org.keycloak.models.*;
@@ -34,6 +36,7 @@ public class ExternalStorageProvider implements
     protected Map<String, UserModel> loadUsers = new HashMap<>();
     protected Map<String, String> loadStoreIds = new HashMap<>();
     private UserServices userServices = new UserServices();
+    private UserDao userDao=new UserDao();
     private static final Logger logger = Logger.getLogger(ExternalStorageProvider.class);
 
     public ExternalStorageProvider(KeycloakSession session, ComponentModel model) {
@@ -60,7 +63,8 @@ public class ExternalStorageProvider implements
         if (adapter == null) {
             logger.info("getUserByUsername->adapter==null");
             try {
-                User user = userServices.getUserByName(username);
+                //User user = userServices.getUserByName(username);
+                User user=userDao.getUserOneByName(username);
                 if (user != null) {
                     logger.info("getUserByUsername->user!=null");
                     adapter = createAdapter(realmModel, username,user);//创建了一个新的usermodel给adapter
@@ -162,9 +166,13 @@ public class ExternalStorageProvider implements
     @Override
     public boolean isValid(RealmModel realmModel, UserModel userModel, CredentialInput input) {
         logger.info("isValid=>input:" + input.getChallengeResponse() + ",=>userModel:" + userModel.getUsername());
+        if (userModel.getUsername()==null||input.getChallengeResponse()==null){
+            throw new ComponentValidationException("name or password is null");
+        }
+
         UserModel local=this.session.userLocalStorage().getUserByUsername(userModel.getUsername(),realmModel);
+
         if (local!=null){//先看看本地缓存
-            //String password=local.getAttribute("password");
             if (local.getAttribute("password")!=null){
                 String password=local.getAttribute("password").get(0);
                 return password.equals(input.getChallengeResponse());
@@ -214,6 +222,6 @@ public class ExternalStorageProvider implements
     @Override
     public boolean removeUser(RealmModel realmModel, UserModel userModel) {
         logger.info("remove a user:"+realmModel.getName());
-        return false;
+        return true;
     }
 }

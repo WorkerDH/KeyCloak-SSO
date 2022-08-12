@@ -5,6 +5,7 @@ package com.dh.keycloak.fedaration.postgres;/**
 
 import com.dh.keycloak.fedaration.postgres.model.User;
 import org.apache.log4j.Logger;
+import org.keycloak.component.ComponentValidationException;
 import org.postgresql.Driver;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ public class UserServices {
         String username = pros.getProperty("username");
         String password = pros.getProperty("password");
         String driverClass = pros.getProperty("driverclass");
+
         // 加载驱动
         User  user= connTest(url,username,password,driverClass,name);
         return user;
@@ -38,8 +40,12 @@ public class UserServices {
     private static User connTest(String url, String username, String password, String driverClass,String name) throws ClassNotFoundException, SQLException {
         logger.info("into conntest");
         Class.forName(driverClass);
+        if (url==null){
+            throw new ComponentValidationException("not found url");
+        }
         // 获取连接
         Connection conn = DriverManager.getConnection(url, username, password);
+
         String sql = "select * from user_info where name='"+name+"'";
         logger.info("sql:"+sql);
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -49,16 +55,13 @@ public class UserServices {
         // 处理结果集
         while (rs.next()) {
             user=new User();
-            user.setId(rs.getString(1));
-            user.setUsername(rs.getString(3));
-            user.setPassword(rs.getString(5));
-            user.setRoleName(rs.getString(6));
+            user.setId(rs.getString("id"));
+            user.setUsername(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+            user.setRoleName(rs.getString("roleName"));
             user.setPhone(rs.getString("phone"));
            // System.out.println("id: " + rs.getString(1));
             break;
-//            System.out.print("email " + rs.getString(2));
-//            System.out.print("name: " + rs.getString(3));
-//            System.out.println("phone: " + rs.getString(4));
         }
         // 关闭资源
         rs.close();
