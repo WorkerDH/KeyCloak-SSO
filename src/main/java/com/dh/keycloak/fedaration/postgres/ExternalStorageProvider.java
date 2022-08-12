@@ -21,9 +21,7 @@ import java.util.*;
  * @author DH
  * @create 2022/7/29 10:10
  */
-//实现了UserLookupProvider接口，因为我们希望能够使用此提供程序存储的用户登录。
-//它实现了该CredentialInputValidator接口，因为我们希望能够验证使用登录屏幕输入的密码。
-//我们的属性文件是只读的。我们实现CredentialInputUpdater因为我们想在用户尝试更新他的密码时发布一个错误条件。
+
 public class ExternalStorageProvider implements
         UserStorageProvider,
         UserLookupProvider,
@@ -35,7 +33,6 @@ public class ExternalStorageProvider implements
     protected ComponentModel model;
     protected Map<String, UserModel> loadUsers = new HashMap<>();
     protected Map<String, String> loadStoreIds = new HashMap<>();
-    private UserServices userServices = new UserServices();
     private UserDao userDao=new UserDao();
     private static final Logger logger = Logger.getLogger(ExternalStorageProvider.class);
 
@@ -182,7 +179,7 @@ public class ExternalStorageProvider implements
             return false;
         }
         try {
-            User user = userServices.getUserByName(userModel.getUsername());
+            User user = userDao.getUserOneByName(userModel.getUsername());
 
             if (user == null) {
                 logger.info("isValid->user=null");
@@ -198,7 +195,6 @@ public class ExternalStorageProvider implements
     private void printAttr(Map<String, List<String>> attributes) {
         Set<String> keys = attributes.keySet();
         for (String key : keys) {
-            logger.info("getKey=" + key);
             List<String> list = attributes.get(key);
             for (String str : list) {
                 logger.info("key=" + key + ",val:" + str);
