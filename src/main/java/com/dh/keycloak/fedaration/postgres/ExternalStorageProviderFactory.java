@@ -88,6 +88,11 @@ public class ExternalStorageProviderFactory  implements UserStorageProviderFacto
                 .helpText("input your password")
                 .type(ProviderConfigProperty.STRING_TYPE)
                 .add()
+                .property().name("TABLE")
+                .label("TABLE")
+                .helpText("input your user table")
+                .type(ProviderConfigProperty.STRING_TYPE)
+                .add()
                 .build();
     }
 
@@ -104,7 +109,8 @@ public class ExternalStorageProviderFactory  implements UserStorageProviderFacto
         String DATABASE_SID=config.getConfig().getFirst("DATABASE_SID");
         String USERNAME=config.getConfig().getFirst("USERNAME");
         String PASSWORD=config.getConfig().getFirst("PASSWORD");
-        if ((SERVER_IP==null||SERVER_PORT==null||DATABASE_SID==null||USERNAME==null||PASSWORD==null)&&flag){
+        String TABLE=config.getConfig().getFirst("TABLE");
+        if ((SERVER_IP==null||SERVER_PORT==null||DATABASE_SID==null||USERNAME==null||PASSWORD==null||TABLE==null)&&flag){
             throw new ComponentValidationException("all config must input ,can't has null");
         }else {
             PostgresConfig.SERVER_IP=SERVER_IP;
@@ -112,14 +118,13 @@ public class ExternalStorageProviderFactory  implements UserStorageProviderFacto
             PostgresConfig.DATABASE_SID=DATABASE_SID;
             PostgresConfig.USERNAME=USERNAME;
             PostgresConfig.PASSWORD=PASSWORD;
+            PostgresConfig.TABLE=TABLE;
         }
     }
     @Override
     public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel config) throws ComponentValidationException {
-        //String pro1=config.getConfig().getFirst("pro1");
-        logger.info("validateConfiguration");
-        //realm.getClientById("").setRedirectUris(null);
 
+        logger.info("validateConfiguration");
         initConfig(config,true);
         DBConnection conn=new DBConnection();
         Connection connection=conn.getConnection();

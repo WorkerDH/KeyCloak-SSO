@@ -4,6 +4,7 @@ package com.dh.keycloak.fedaration.postgres.dao;/**
  */
 
 
+import com.dh.keycloak.fedaration.postgres.config.PostgresConfig;
 import com.dh.keycloak.fedaration.postgres.dbutil.DBConnection;
 import com.dh.keycloak.fedaration.postgres.model.User;
 import org.apache.log4j.Logger;
@@ -12,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *@author EDY
+ *@author DH
  *@create 2022/8/2 16:56
  */
 public class UserDao {
@@ -23,7 +24,7 @@ public class UserDao {
         connection=conn.getConnection();
     }
     public User getUserOneByName(String name) throws SQLException {
-        String sql = "select * from user_info where name='"+name+"'";
+        String sql = "select * from "+ PostgresConfig.TABLE +" where name='"+name+"'";
         logger.info("sql:"+sql);
         ResultSet rs=conn.executeQuery(this.connection.prepareStatement(sql));
         User user=null;

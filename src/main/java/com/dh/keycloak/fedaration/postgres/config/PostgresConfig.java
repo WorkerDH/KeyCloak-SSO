@@ -1,10 +1,6 @@
-package com.dh.keycloak.fedaration.postgres.config;/**
- * @author EDY
- * @create 2022/8/2 16:05
- */
-
+package com.dh.keycloak.fedaration.postgres.config;
 /**
- *@author EDY
+ *@author DH
  *@create 2022/8/2 16:05
  */
 public class PostgresConfig {
@@ -16,5 +12,5 @@ public class PostgresConfig {
     public static String DATABASE_SID =null;
     public static String USERNAME =null;
     public static String PASSWORD =null;
-
+    public static String TABLE=null;
 }
