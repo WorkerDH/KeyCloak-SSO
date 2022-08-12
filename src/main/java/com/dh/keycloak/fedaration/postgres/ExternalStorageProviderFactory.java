@@ -30,23 +30,19 @@ public class ExternalStorageProviderFactory  implements UserStorageProviderFacto
     private ComponentModel comModel ;
     @Override
     public ExternalStorageProvider create(KeycloakSession keycloakSession, ComponentModel model) {
-        logger.info("start establish factory !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        logger.info("start establish factory !!!");
         comModel=model;
-        logger.info("value:"+comModel.getConfig().getFirst("SERVER_IP"));
         if (PostgresConfig.SERVER_IP==null||PostgresConfig.SERVER_PORT==null
                 ||PostgresConfig.DATABASE_SID==null||PostgresConfig.USERNAME==null
                 ||PostgresConfig.PASSWORD==null){
-            logger.info("create true!!!");
             initConfig(model,false);
-        }else{
-            logger.info("create false!!!");
         }
         return new ExternalStorageProvider(keycloakSession,model);
     }
 
     @Override
     public String getId() {
-        //logger.info("start establish factory get id !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        logger.info("start establish factory get id !!!");
         return PROVIDER_NAME;
     }
     @Override
@@ -55,7 +51,6 @@ public class ExternalStorageProviderFactory  implements UserStorageProviderFacto
     }
     protected static final List<ProviderConfigProperty> configProperties ;
     static {
-        logger.info("static info");
         configProperties = getConfigProps();
     }
 

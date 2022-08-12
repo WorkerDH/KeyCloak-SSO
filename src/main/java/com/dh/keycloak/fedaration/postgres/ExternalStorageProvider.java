@@ -13,10 +13,7 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
-
-
 import java.util.*;
-
 /**
  * @author DH
  * @create 2022/7/29 10:10
@@ -32,7 +29,6 @@ public class ExternalStorageProvider implements
     protected KeycloakSession session;
     protected ComponentModel model;
     protected Map<String, UserModel> loadUsers = new HashMap<>();
-    protected Map<String, String> loadStoreIds = new HashMap<>();
     private UserDao userDao=new UserDao();
     private static final Logger logger = Logger.getLogger(ExternalStorageProvider.class);
 
@@ -45,7 +41,6 @@ public class ExternalStorageProvider implements
     public UserModel getUserById(String id, RealmModel realmModel) {
         logger.info("getUserById" + id);
         StorageId storageId = new StorageId(id);
-        logger.info("getUserById:storeId=" + storageId.getId());
         String username = storageId.getExternalId();
         return getUserByUsername(username, realmModel);
     }
@@ -54,26 +49,20 @@ public class ExternalStorageProvider implements
     public UserModel getUserByUsername(String username, RealmModel realmModel) {
         logger.info("getUserByUsername:1.0");
         UserModel adapter = loadUsers.get(username);
-        //RoleProvider roleProvider=null;
-       // roleProvider.addRealmRole(realmModel,"ss");
-        //this.session.roleLocalStorage().addRealmRole();
         if (adapter == null) {
-            logger.info("getUserByUsername->adapter==null");
             try {
-                //User user = userServices.getUserByName(username);
                 User user=userDao.getUserOneByName(username);
                 if (user != null) {
                     logger.info("getUserByUsername->user!=null");
                     adapter = createAdapter(realmModel, username,user);//创建了一个新的usermodel给adapter
-                    //adapter.setEnabled(true);
                     List<String> list = new ArrayList<>();
                     list.add(user.getPassword());
-                    String id = "f:" + model.getId() + ":" + adapter.getUsername();
-                    logger.info("have a id=>" + id);
+//                    String id = "f:" + model.getId() + ":" + adapter.getUsername();
+//                    logger.info("have a id=>" + id);
                     loadUsers.put(username, adapter);
                 }
             } catch (Exception e) {
-                logger.info("exception:" + e);
+
                 e.printStackTrace();
             }
 
@@ -92,7 +81,6 @@ public class ExternalStorageProvider implements
         logger.info("createAdapter:" + username);
         UserModel local = session.userLocalStorage().getUserByUsername(username, realm);
         if (local == null) {
-            logger.info("local ==null>>>>>>>");
             local = session.userLocalStorage().addUser(realm, username);
             local.setFederationLink(model.getId());
             local.setEnabled(true);
@@ -100,7 +88,6 @@ public class ExternalStorageProvider implements
             local.setSingleAttribute("phone",user.getPhone());
             addRole(realm,user.getRoleName());//新增角色
             Iterator roles = realm.getRoles().iterator();
-
             Iterator userRoles = local.getRoleMappings().iterator();
             boolean flag = true;
             while (userRoles.hasNext()) {//判断改用户是否已经注册了用户
@@ -111,17 +98,15 @@ public class ExternalStorageProvider implements
             }
             while (roles.hasNext()) {
                 RoleModel roleModel = (RoleModel) roles.next();
-                logger.info("get my role info:" + roleModel.getName());
+//                logger.info("get my role info:" + roleModel.getName());
                 if (roleModel.getName().equals(user.getRoleName()) && flag) {
-                    logger.info("set my role info:" + roleModel.getName());
+//                    logger.info("set my role info:" + roleModel.getName());
                     local.grantRole(roleModel);//授予角色
                     local.grantRole(realm.getRole("defaultRole"));
                 }
             }
-            //this.session.realms().addRealmRole(realm,"customRole"+username);
-            //this.session.roleLocalStorage().addRealmRole(realm,"customRole"+username);
         }else{
-            logger.info("local !=null>>>>>>>");
+            logger.info("local !=null ");
         }
          return local;
 
@@ -148,7 +133,6 @@ public class ExternalStorageProvider implements
     @Override
     public boolean supportsCredentialType(String credentialType) {
         logger.info("supportsCredentialType:" + credentialType);
-
         return credentialType.equals(PasswordCredentialModel.TYPE);
     }
 
@@ -162,11 +146,10 @@ public class ExternalStorageProvider implements
     //该isValid()方法负责验证密码,高
     @Override
     public boolean isValid(RealmModel realmModel, UserModel userModel, CredentialInput input) {
-        logger.info("isValid=>input:" + input.getChallengeResponse() + ",=>userModel:" + userModel.getUsername());
+        logger.info("isValid=>input:" + input.getChallengeResponse());
         if (userModel.getUsername()==null||input.getChallengeResponse()==null){
             throw new ComponentValidationException("name or password is null");
         }
-
         UserModel local=this.session.userLocalStorage().getUserByUsername(userModel.getUsername(),realmModel);
 
         if (local!=null){//先看看本地缓存
@@ -180,7 +163,6 @@ public class ExternalStorageProvider implements
         }
         try {
             User user = userDao.getUserOneByName(userModel.getUsername());
-
             if (user == null) {
                 logger.info("isValid->user=null");
                 return false;
