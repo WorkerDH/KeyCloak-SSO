@@ -2,6 +2,7 @@ package com.dh.keycloak.fedaration.postgres.config;
 /**
  *@author DH
  *@create 2022/8/2 16:05
+ *@desc 自定义配置的属性
  */
 public class PostgresConfig {
 
