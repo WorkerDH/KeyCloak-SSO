@@ -26,7 +26,7 @@ keycloak的spi接口实现，该spi完成了对接postgre外部数据库，使�
 ```java
 UserModel local = session.userLocalStorage().getUserByUsername(username, realm);
 if (local == null) {      
-local.setSingleAttribute("customattr","cusValue");//就是在这里增加了额外的属性
+	local.setSingleAttribute("customattr","cusValue");//就是在这里增加了额外的属性
 }
 ```
 
@@ -44,9 +44,9 @@ local.setSingleAttribute("customattr","cusValue");//就是在这里增加了额�
 
 ```java
 RefreshableKeycloakSecurityContext session= (RefreshableKeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
-        AccessToken token=session.getToken(); 
-        Map<String,Object> claims=token.getOtherClaims(); 
-        claims.get("customattr_showname");
+AccessToken token=session.getToken(); 
+Map<String,Object> claims=token.getOtherClaims(); 
+claims.get("customattr_showname");
 ```
 
 最后说明一下，我们自定义的额外属性想要获取到，需要在client中将其映射出来，然后这些映射出来的属性都会保存在token中一个claims的map中，而getOtherClaims()则正是获取了其中的claims，因而能获取到我们自定义的属性名。
