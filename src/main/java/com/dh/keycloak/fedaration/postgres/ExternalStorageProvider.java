@@ -86,6 +86,7 @@ public class ExternalStorageProvider implements
             local.setEnabled(true);
             local.setSingleAttribute("password",user.getPassword());
             local.setSingleAttribute("phone",user.getPhone());
+            local.setSingleAttribute("customattr","cusValue");
             addRole(realm,user.getRoleName());//新增角色
             Iterator roles = realm.getRoles().iterator();
             Iterator userRoles = local.getRoleMappings().iterator();
