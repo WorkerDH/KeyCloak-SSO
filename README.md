@@ -158,3 +158,8 @@ claims.get("customattr_showname");
 
 最后说明一下，我们自定义的额外属性想要获取到，需要在client中将其映射出来，然后这些映射出来的属性都会保存在token中一个claims的map中，而getOtherClaims()则正是获取了其中的claims，因而能获取到我们自定义的属性名。
 
+### 5.结语
+
+以上例子的代码都在我的github上的仓库，该项目是keycloak的spi实现，算是比较详细的了，
+
+欢迎访问：https://github.com/WorkerDH/KeyCloak-SSO
