@@ -1,7 +1,7 @@
 # KeyCloak-SSO
 ### 1. 功能说明
 
-keycloak的spi接口实现，该spi完成了对接postgre外部数据库，使用postgre数据库中的用户信息来进行登录验证，并给用户赋予角色，赋予自定义属性,并且可以自定义数据库连接url和表名（自定义配置）。 
+keycloak的SPI自定义用户接口实现，该SPI完成了对接postgre外部数据库，使用postgre数据库中的用户信息来进行登录验证，并给用户赋予角色（赋予权限），赋予自定义属性,并且可以自定义数据库连接url和表名（自定义配置）。 
 
 关于如何配置，如下图所示：
 
@@ -9,7 +9,7 @@ keycloak的spi接口实现，该spi完成了对接postgre外部数据库，使�
 
 ### 2.如何使用
 
-项目克隆拉取下来之后，你只需要编译并且打包即可。但需要注意的是，不要忘记将postgresql的驱动一同打包，不然会找不到驱动。
+项目克隆拉取下来之后，你只需要编译并且打包即可。拷贝到 /standalone/deployments中等待一会儿即可，然后在UserFedaration的选项库中选择我们的SPI即可(我这里的SPI名字是external)。 但需要注意的是，不要忘记将postgresql的驱动一同打包，不然会找不到驱动。
 
 ### 3.权限赋予
 
@@ -27,15 +27,13 @@ keycloak的spi接口实现，该spi完成了对接postgre外部数据库，使�
 
 <img src="README-img/1660631505881.png" alt="1660631505881"  />
 
-- 最后在springboot项目中的application.properties或者application.yaml增加根据角色做拦截的配置，例如：
+- 最后在springboot项目中application.properties或者application.yaml中根据角色增加拦截配置，限制其能访问的资源 (通过限制路径的方式限制)。如下：
 
 ![1660631853517](README-img/1660631853517.png)
 
-如此，这个根据角色来做的权限区分算是初步完成，但是我们不难看到其中的问题，我们的角色名以及角色用户关系都是在控制台中完成的，这在实际开发中肯定是不可行的。因此在我们开发自定义用户中心(SPI)的时候就可以
+如此，这个根据角色来做的权限区分算是初步完成，但是我们不难看到其中的问题，我们的角色名以及角色用户关系都是在控制台中完成的。这在实际开发中肯定是不可行的，我们在使用自定义用户中心(SPI)的时候肯定想要将用户原有的角色也迁移过去，该怎么解决呢？我们开发自定义用户中心(SPI)的时候就可以去动态的配置我们的用户角色信息，根据用户所拥有的role赋予相应角色（权限）。
 
-keycloak中有一个角色系统，根据用户所拥有的role，可以限制其能访问的资源 (通过限制路径的方式限制),但是我们在使用自定义用户中心(SPI)的时候肯定想要将用户原有的角色也迁移过去，该怎么解决呢？
-
-解决这个问题的关键在于怎么去获取realm中的角色，然后又如何给用户赋予角色，那么直接看代码吧：
+解决这个问题的关键在于怎么去获取realm中的角色，然后又如何给用户赋予角色，我直接上代码吧：
 
 ```java
 //创建userModel
@@ -147,7 +145,7 @@ if (local == null) {
 
 ![1660560942016](README-img/1660560942016.png)
 
-最后，我们举一个在java中我们拿到token后获取自定义属性的例子来说：
+然后，我们举一个在java中我们拿到token后获取自定义属性的例子来说：
 
 ```java
 RefreshableKeycloakSecurityContext session= (RefreshableKeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
@@ -158,8 +156,12 @@ claims.get("customattr_showname");
 
 最后说明一下，我们自定义的额外属性想要获取到，需要在client中将其映射出来，然后这些映射出来的属性都会保存在token中一个claims的map中，而getOtherClaims()则正是获取了其中的claims，因而能获取到我们自定义的属性名。
 
+
+
 ### 5.结语
 
-以上例子的代码都在我的github上的仓库，该项目是keycloak的spi实现，算是比较详细的了，
+以上例子的代码都在我的github上的仓库，该项目是keycloak的spi实现，算是比较详细的了，如果觉得有用，麻烦点颗星啊，第一次写博客，写的不好的地方多多担待了，意见和疑惑都可以提出来，我会尽量解答。
 
-欢迎访问：https://github.com/WorkerDH/KeyCloak-SSO
+keycloak的整套东西全部写完还是挺废时间的，所以暂时就只写了关于SPI的开发，后续应该会继续补充它的其他部分。
+
+欢迎访问：[https://github.com/WorkerDH/KeyCloak-SSO](https://github.com/WorkerDH/KeyCloak-SSO)

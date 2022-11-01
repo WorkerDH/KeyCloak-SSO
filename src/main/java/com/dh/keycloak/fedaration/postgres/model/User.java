@@ -3,6 +3,8 @@ package com.dh.keycloak.fedaration.postgres.model;/**
  * @create 2022/7/25 16:47
  */
 
+import java.util.Map;
+
 /**
  *@author EDY
  *@create 2022/7/25 16:47
@@ -13,6 +15,16 @@ public class User {
     String password;
     String roleName;
     String phone;
+    private Map<String,Object> otherClaims;//自定义的属性
+
+    public Map<String, Object> getOtherClaims() {
+        return otherClaims;
+    }
+
+    public void setOtherClaims(Map<String, Object> otherClaims) {
+        this.otherClaims = otherClaims;
+    }
+
     public String getId() {
         return id;
     }
@@ -52,4 +64,5 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
 }

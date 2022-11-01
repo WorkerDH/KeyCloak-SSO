@@ -1,5 +1,6 @@
 package com.dh.keycloak.fedaration.postgres;
 
+import com.dh.keycloak.fedaration.postgres.config.PostgresConfig;
 import com.dh.keycloak.fedaration.postgres.dao.UserDao;
 import com.dh.keycloak.fedaration.postgres.model.User;
 import org.apache.log4j.Logger;
@@ -51,7 +52,15 @@ public class ExternalStorageProvider implements
         UserModel adapter = loadUsers.get(username);
         if (adapter == null) {
             try {
-                User user=userDao.getUserOneByName(username);
+                User user=null;
+                if (PostgresConfig.CustomEnable.equals("true")){
+                    Map<String,Object> params=new HashMap<>();
+                    params.put("name",username);
+                    user=userDao.getUserOneByClaim(params);
+                }else{
+                    user=userDao.getUserOneByName(username);
+                }
+
                 if (user != null) {
                     logger.info("getUserByUsername->user!=null");
                     adapter = createAdapter(realmModel, username,user);//创建了一个新的usermodel给adapter

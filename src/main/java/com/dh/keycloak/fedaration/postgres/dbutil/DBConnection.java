@@ -15,7 +15,8 @@ public class DBConnection {
     public Connection getConnection(){
         try {
             Class.forName(PostgresConfig.CLASS_NAME);
-            String url=PostgresConfig.DATABASE_URL+"://"+PostgresConfig.SERVER_IP+":"+PostgresConfig.SERVER_PORT+"/"+PostgresConfig.DATABASE_SID;
+            String url=PostgresConfig.DATABASE_URL+"://"+PostgresConfig.SERVER_IP+":"+PostgresConfig.SERVER_PORT+"/"+PostgresConfig.DATABASE_SID+PostgresConfig.LastStuff;
+            System.out.println(url);
             conn= DriverManager.getConnection(url,PostgresConfig.USERNAME,PostgresConfig.PASSWORD);
 
         } catch (ClassNotFoundException e) {
